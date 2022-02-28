@@ -18,4 +18,4 @@ Improvements needed:
 - Need to handle unsupported input range.
 - Need to add support for differnet formats of input.
 - Need to handle the scenarios where the dependent APIs not working.
-- Need to support more wether parameters like windspeed.
+- Need to support more weather parameters like windspeed.
