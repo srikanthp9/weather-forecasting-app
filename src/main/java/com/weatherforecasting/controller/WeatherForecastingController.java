@@ -5,6 +5,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.tomcat.util.json.JSONParser;
@@ -18,53 +19,63 @@ import org.springframework.web.client.RestTemplate;
 @RestController
 public class WeatherForecastingController {
 
-  @GetMapping(value = "/forecast/{latitude}/{longitude}")
-  public String getForecast(@PathVariable String latitude,@PathVariable String longitude) throws URISyntaxException, ParseException {
+	@GetMapping(value = "/temperature/{latitude}/{longitude}")
+	public String getTemperature(@PathVariable String latitude, @PathVariable String longitude)
+			throws URISyntaxException, ParseException {
+		return getForecast(latitude, longitude, "temperature");
+	}
 
-    StringBuilder url = new StringBuilder("https://api.weather.gov/points/");
-    url.append(latitude);
-    url.append(",");
-    url.append(longitude);
-    
-    RestTemplate restTemplate = new RestTemplate();
-    URI uri = new URI(url.toString());
-    ResponseEntity<String> forecastResponse = restTemplate.getForEntity(uri, String.class);
+	@GetMapping(value = "/windspeed/{latitude}/{longitude}")
+	public String getWindspeed(@PathVariable String latitude, @PathVariable String longitude)
+			throws URISyntaxException, ParseException {
+		return getForecast(latitude, longitude, "windspeed");
+	}
 
-    String response = forecastResponse.getBody();
-    //System.out.println(forecastResponse.getBody());
+	private String getForecast(String latitude, String longitude, String parameter)
+			throws URISyntaxException, ParseException {
+		RestTemplate restTemplate = new RestTemplate();
 
-    JSONParser parser = new JSONParser(response);
+		if (!isValidLatitude(latitude) || !isValidLongitude(longitude)) {
+			return "Invalid input";
+		}
 
-    Map<String,Object> properties = (Map<String, Object>) parser.object().get("properties");
-    
-    String forecastUrl = (String) properties.get("forecast");
-    
-    //System.out.println(forecastUrl);
-    
-    uri = new URI(forecastUrl);
-    ResponseEntity<String> forecastResponse1 = restTemplate.getForEntity(uri, String.class);
+		StringBuilder url = new StringBuilder("https://api.weather.gov/points/");
+		url.append(latitude);
+		url.append(",");
+		url.append(longitude);
+		URI uri = new URI(url.toString());
+		ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
+		String responseStr = response.getBody();
+		JSONParser parser = new JSONParser(responseStr);
 
-    //System.out.println(forecastResponse1.getBody());
-    
-    
-    String response1 = forecastResponse1.getBody();
-    //System.out.println(forecastResponse.getBody());
+		Map<String, Object> properties = (Map<String, Object>) parser.object().get("properties");
+		String forecastUrl = (String) properties.get("forecast");
+		URI fcstUri = new URI(forecastUrl);
 
-    JSONParser parser1 = new JSONParser(response1);
+		ResponseEntity<String> forecastResponse = restTemplate.getForEntity(fcstUri, String.class);
+		String fcstResponse = forecastResponse.getBody();
+		JSONParser fcstResponseParser = new JSONParser(fcstResponse);
 
-    Map<String,Object> properties1 = (Map<String, Object>) parser1.object().get("properties");
-    
-    ArrayList<LinkedHashMap> periods = (ArrayList<LinkedHashMap>) properties1.get("periods");
-        
-    java.math.BigInteger temp = null;
-    for(Map abc : periods) {
-      if(abc.get("name").equals("Wednesday Night")) {
-        temp = (BigInteger) abc.get("temperature");
-      }
-    }
+		Map<String, Object> properties1 = (Map<String, Object>) fcstResponseParser.object().get("properties");
+		List<LinkedHashMap> periods = (ArrayList<LinkedHashMap>) properties1.get("periods");
+		java.math.BigInteger temp = null;
+		String temperatureUnit = null;
+		for (Map abc : periods) {
+			if (abc.get("name").equals("Wednesday Night")) {
+				temp = (BigInteger) abc.get(parameter);
+				temperatureUnit = (String) abc.get("temperatureUnit");
+				break;
+			}
+		}
+		return temp.toString() + temperatureUnit;
+	}
 
-    return temp.toString();
+	private boolean isValidLongitude(String longitude) {
+		return true;
+	}
 
-  }
+	private boolean isValidLatitude(String latitude) {
+		return true;
+	}
 
 }
