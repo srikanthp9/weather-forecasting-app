@@ -1,5 +1,4 @@
 # weather-forecasting-app
-weather-forecasting-app
 
 A weather-forecasting application that takes geographic US latitude/longitude values as input and presents the weather for a point in time at the given location(s).
 
@@ -12,6 +11,11 @@ This application:
 
 This is developed using java language as a sprint boot application. 
 A rest API is exposed to get the temperature forecast. The API takes latitude/longitude values as input, and returns temperature.
-Example URL: http://localhost:8083/forecast/39.7456/-97.0892
+Example URL: http://localhost:8083/temperature/39.7456/-97.0892
 
-
+Improvements needed:
+- Invalid input values handling needs to be developed.
+- Need to handle unsupported input range.
+- Need to add support for differnet formats of input.
+- Need to handle the scenarios where the dependent APIs not working.
+- Need to support more wether parameters like windspeed.
