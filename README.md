@@ -10,4 +10,7 @@ This application:
   (https://www.weather.gov/documentation/services-web-api&sa=D&source=calendar&ust=1641768438693965&usg=AOvVaw3OWCV8Z2DjkIpuF6eXz_L2)
 - Presents the “temperature” value for “Wednesday Night” at the input location.
 
-This is developed using java launguage as a sprint boot application.
+This is developed using java launguage as a sprint boot application. A rest API is exposed to get the temperature forcast. The API takes latitude/longitude values as input.
+Example URL: http://localhost:8083/forecast/39.7456/-97.0892
+
+
